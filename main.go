@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"net/http"
+	"strconv"
+	"fmt"
 )
 
 // handler
@@ -15,7 +17,12 @@ func home(w http.ResponseWriter, r *http.Request) {
 }
 
 func snippetView(w http.ResponseWriter, r *http.Request) {
-    w.Write([]byte("View snippets"))
+    id, err := strconv.Atoi(r.URL.Query().Get("id"))
+    if err != nil || id < 1 {
+        http.NotFound(w, r)
+        return
+    }
+    fmt.Fprintf(w, "Snippet with id: %v\n", id)
 }
 
 func snippetCreate(w http.ResponseWriter, r *http.Request) {
@@ -30,8 +37,10 @@ func main() {
 
     mux.HandleFunc("POST /snippet/create", snippetCreate)
     mux.HandleFunc("/snippet/create", func(w http.ResponseWriter, r *http.Request) {
-        w.Header().Set("Allow", "POST")
+        w.Header().Set("Allow", http.MethodPost)
+        w.Header().Set("Content-Type", "text/html")
         http.Error(w, "Method Not Allowed, Use POST", http.StatusMethodNotAllowed)
+        return
     })
 
     log.Print("Starting server on :4000")
