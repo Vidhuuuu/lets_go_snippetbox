@@ -31,8 +31,7 @@ func main() {
     mux.HandleFunc("POST /snippet/create", snippetCreate)
     mux.HandleFunc("/snippet/create", func(w http.ResponseWriter, r *http.Request) {
         w.Header().Set("Allow", "POST")
-        w.WriteHeader(405)
-        w.Write([]byte("Method Not Allowed, User POST"))
+        http.Error(w, "Method Not Allowed, Use POST", http.StatusMethodNotAllowed)
     })
 
     log.Print("Starting server on :4000")
